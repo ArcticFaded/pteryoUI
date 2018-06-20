@@ -21,6 +21,8 @@ import { SearchService } from '../../search.service'
         <svg #svg [attr.width]="_options.width" [attr.height]="_options.height" class="scroll-svg">
           <g class = "chartGroup" [labelVisual]="node" (click)="expandNode(node)" *ngFor="let node of visNodes"></g>
         </svg>
+        <div *ngIf="visNodes.length ===0">There are no results</div>
+
       </div>
     </div>
   </div>
@@ -30,6 +32,7 @@ import { SearchService } from '../../search.service'
 export class GraphListComponent {
   @Input('list') nodes: Node[];
   visNodes: Node[] = [];
+  private sortedNodes: Node[] = [];
 
 
   // scroller: ListGraph.virtualScroller
@@ -54,13 +57,15 @@ export class GraphListComponent {
 
 
   trimNode(term){
-    for(var node of this.nodes){
+    this.visNodes = [];
+    for(var node of this.sortedNodes){
       var nodeIndex = this.visNodes.indexOf(node);
       var trying = node.label || node.id;
       console.log("trying:" + trying)
+      console.log(term)
       if(trying.toLowerCase().startsWith(term.toLowerCase())){
         console.log("matched parent node:" + trying, term)
-        if(nodeIndex === -1 && node.level > 1){
+        if(nodeIndex === -1 ){
           this.visNodes.push(node)
         }
         continue;
@@ -94,6 +99,7 @@ export class GraphListComponent {
       }
       if(!sim){
         this.visNodes.push(this.nodes[entry]);
+        this.sortedNodes.push(this.nodes[entry])
       }
     }
 
@@ -129,6 +135,9 @@ export class GraphListComponent {
         return 0;
       }
       return a.label.localeCompare(b.label); });
+    // for(var node of this.nodes){
+    //
+    // }
   }
   orderNodes(nodes){
     var i = 0;

@@ -29,6 +29,10 @@ export class QuestionViewComponent implements OnInit {
     console.log("constructing")
     this.isLoading = true;
     this.questions = searchService.getQuestions();
+    jsonDataService.switchTypes$.subscribe(change => {
+      this.queries = [];
+      this.populateQuestions();
+    })
     jsonDataService.nodes$.subscribe(change => {
       this.nodes = change
       this.size = this.nodes.length

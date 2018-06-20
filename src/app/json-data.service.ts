@@ -4,6 +4,7 @@ import { Injectable,
 import { Node, Link } from './d3';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject, of } from 'rxjs';
+// import { QuestionScripts } from './search.service'
 
 
 const httpOptions = {
@@ -20,15 +21,18 @@ export class JsonDataService {
 
   private nodesSource = new Subject<any>();
   private linksSource = new Subject<any>();
+  private typeSource = new Subject<any>();
   private dataSource = new Subject<any>();
   private searchTerm = new Subject<any>();
   private answer = new Subject<any>();
+
 
   nodes$ = this.nodesSource.asObservable();
   links$ = this.linksSource.asObservable();
   datum$ = this.dataSource.asObservable();
   search$ = this.searchTerm.asObservable();
   answer$ = this.answer.asObservable();
+  switchTypes$ = this.typeSource.asObservable();
 
 
   public nodes: Node[] = [];
@@ -103,12 +107,14 @@ export class JsonDataService {
   //   this.dataSource.next(data);
   // }
   form(val: {key:string, value:string}){
+
     console.log(Object.keys(val))
     if(Object.keys(val).length === 1){
       var id = Object.keys(val)[0];
+
       this.http.post('http://localhost:3333/create/answer', {
         id: id,
-        type: val[id],
+        type: API.typeToString[val[id]],
         answered: true
       }).subscribe((data) => {
         console.log(data)
@@ -136,7 +142,20 @@ export class JsonDataService {
     }
   }
   search(term){
+    console.log(term)
     this.searchTerm.next(term);
+  }
+  updateSubQuestions(value, id){
+    this.http.put('http://localhost:3333/update/type', {
+      id: id,
+      type: value
+    }, httpOptions).subscribe((data) => {
+      console.log(data)
+      this.typeSource.next(value)
+    }, (error) => {
+      console.log(error)
+    })
+
   }
   getTerm(): Observable<string>{
     return of(this.term);
@@ -198,7 +217,19 @@ export namespace QUESTIONS {
 }
 export namespace API{
 
-
+    export const typeToString = {
+      "timestamp": "integer",
+      "day": "date",
+      "date": "date",
+      "money": "number",
+      "real": "number",
+      "url":"string",
+      "year":"date",
+      "zipcode":"string",
+      "string":"string",
+      "email":"string",
+      "integer":"integer"
+    }
     export interface SuggestedFormat {
         type: string;
         debugData: string;

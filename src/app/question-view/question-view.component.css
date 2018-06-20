@@ -10,7 +10,8 @@ mat-card-actions{
 
 ::ng-deep .mat-form-field{
   width: -webkit-fill-available;
-  max-width: 1000px;
+  max-width: fit-content;
+  white-space: nowrap;
 }
 .mat-card-content{
   font-size: 20px;

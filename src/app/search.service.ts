@@ -27,11 +27,16 @@ export class SearchService {
   createQuestionOnType(node: Node){
     let quest:  QuestionBase<any>[] = [];
     // this.createAskType(node, quest);
+
     this.http.get('http://localhost:3333/find/question/' + node.id).subscribe(
       (data) => {
         console.log(data)
+        var options = Object.keys(QuestionScripts.typeToString).map(val => {
+          return {key: val, value: val}
+        })
+        var label = `What is the data type of: "${node.label}"?`
+        quest.push(this.createDropdownQuestion(node.id, label, options, 1, data.Type))
         if(data.Answered){
-          //ask question type
           if(data.Value){
             quest.push(new InformationQuestion({
               key: node.id,
@@ -40,7 +45,7 @@ export class SearchService {
             this.questionSource.next(quest);
             return
           }
-          switch(data.Type){
+          switch(QuestionScripts.typeToString[data.Type]){
             case 'string': {
               var questionString = QuestionScripts.createString(node.label)
               var i = 0
@@ -76,9 +81,7 @@ export class SearchService {
             }
           }
         }
-        else{
-          this.createAskType(node, quest);
-        }
+
       },
       (error) => {
         console.log(error)
@@ -90,9 +93,9 @@ export class SearchService {
   }
   createAskType(node: Node, quest: QuestionBase<any>[] = []){
     var options = Object.keys(QuestionScripts.typeToString).map(val => {
-      return {key: QuestionScripts.typeToString[val], value: val}
+      return {key: val, value: val}
     })
-    var label = `What data type is label: "${node.label}"?\n If there is a default value please confirm it.`
+    var label = `What is the data type of: "${node.label}"?`
     console.log(node)
     this.http.get('http://localhost:3333/find/label/' + node.label).subscribe((data) => {
         console.log(data)
@@ -131,48 +134,7 @@ export class SearchService {
       })
     })
   }
-  // createQuestion(node:  Node) {
-  //   let quest: QuestionBase<any>[] = [];
-  //   console.log(quest)
-  //   var questions = node.something
-  //   var i = 0;
-  //   for(var question of questions.children){ // this is now an object of type Semantic: SEE model.go in Go-Mongo
-  //     if(question.id !== "ERRORS"){ // This is a widget container
-  //       for(var child of question.children){ // This is the widget field
-  //         // if(child.id)
-  //         var result = this.VALIDKEYWORDS[this.wordToKeyword(child.id, this.VALIDKEYWORDS)]
-  //         var label;
-  //         if(result){
-  //           if(child.suggestedTypes.length){
-  //             var val = child.suggestedTypes;
-  //             var lal = child.label;
-  //             label = `Please verify these constraint(s) is(are) correct for ${lal}\n=> ${val}`
-  //             var options = child.suggestedTypes.map(val => {return {key: val, value: val}})
-  //             options.push({key: "other", value: "other"})
-  //             quest.push(this.createDropdownQuestion(child.id, label, options, i))
-  //             i++;
-  //           }
-  //           else {
-  //             var lal = child.label;
-  //             label = `What value should we place in TextArea ${lal}`
-  //             quest.push(this.createTextboxQuestion(child.id, label, "", true, i))
-  //             i++;
-  //           }
-  //
-  //         }
-  //         // if(this.wordInString(child.id).length){
-  //         //   console.log(child, this.KEYWORDS[this.wordToKeyword(child.id)])
-  //         // }
-  //
-  //
-  //       }
-  //     } else { // This is the SuggestedConstraint
-  //
-  //     }
-  //   }
-  //   console.log(quest);
-  //   this.questionSource.next(quest);
-  // }
+
   createTextboxQuestion(key: string, label: string, value: string, required: boolean, order: number){
     return new TextboxQuestion({
       key: key,

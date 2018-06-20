@@ -21,6 +21,7 @@ export class JurassicHeroComponent implements OnInit, OnDestroy {
   links: Link[] = [];
   questions : any[];
   queries: any[];
+  index: number=0;
 
   private alive: boolean = true;
   constructor(private jsonDataService: JsonDataService,  private searchService: SearchService,
@@ -35,11 +36,22 @@ export class JurassicHeroComponent implements OnInit, OnDestroy {
     jsonDataService.links$.subscribe(change => {
       this.links = change
     })
+    jsonDataService.switchTypes$.subscribe(change => {
+      this.queries = [];
+      this.populateQuestions();
+    })
     searchService.question$.subscribe(change => {
       this.queries = change;
       this.ref.markForCheck();
 
     })
+  }
+  populateQuestions(){
+    console.log(this.nodes)
+    this.searchService.createQuestionOnType(this.nodes[this.index], this.queries)
+    // for(var node of this.nodes){
+    //   this.searchService.createQuestionOnType(node)
+    // }
   }
   ngOnInit() {
     // this.nodes = this.jsonDataService.nodes;

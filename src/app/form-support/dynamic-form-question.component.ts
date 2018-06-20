@@ -2,6 +2,7 @@ import { Component, Input, ChangeDetectorRef, ChangeDetectionStrategy } from '@a
 import { FormGroup }        from '@angular/forms';
 
 import { QuestionBase }     from './question-base';
+import { JsonDataService } from '../json-data.service';
 
 @Component({
   selector: 'app-question',
@@ -39,13 +40,19 @@ export class DynamicFormQuestionComponent {
   @Input() question: QuestionBase<any>;
   @Input() form: FormGroup;
 
-  constructor(private ref: ChangeDetectorRef) {}
+  constructor(private ref: ChangeDetectorRef, private jsonDataService: JsonDataService) {}
 
   ngOnInit(){
     console.log(this.question, this.form.controls, this.question.key)
     this.form.controls[this.question.key].valueChanges.subscribe((value) => {
       console.log(value, this.question.key, this.question)
-
+      if(this.question.key === 'search'){
+        this.jsonDataService.search(value);
+      }
+      if(this.question.controlType === 'dropdown'){
+        this.jsonDataService.updateSubQuestions(value, this.question.key)
+      }
+      this.question.value = value;
 
     })
   }

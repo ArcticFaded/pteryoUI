@@ -2,9 +2,9 @@
   <h1 class="mat-h1">Dashboard</h1>
   <mat-grid-list cols="4" rowHeight="250px">
     <mat-grid-tile *ngFor="let card of cards" [colspan]="card.cols" [rowspan]="card.rows">
-      <mat-card class="dashboard-card">
+      <mat-card class="dashboard-card" style="overflow:auto">
         <mat-card-header>
-          <mat-card-title>
+          <mat-card-title style="position: sticky; top:0; z-index:999;">
             <h2>
               {{card.title}}
             </h2>
