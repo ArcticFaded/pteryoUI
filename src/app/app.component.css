@@ -1,0 +1,11 @@
+::ng-deep .mat-button{
+  background: rgba(237, 139, 0, 1);
+}
+
+::ng-deep .mat-option{
+  color: rgba(17,94,103,1);
+}
+
+::ng-deep .mat-option.mat-active{
+  color: rgba(0,59,92,1);
+}

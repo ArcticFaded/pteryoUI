@@ -1,0 +1,32 @@
+<div class="grid-container" style="height: -webkit-fill-available">
+  <!-- <h1 class="mat-h1">Questions</h1>
+  <mat-grid-list cols="2" rowHeight="500px">
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+
+    </mat-grid-tile>
+  </mat-grid-list> -->
+
+  <mat-card fxLayout="column" fxLayoutAlign="center center" class="dashboard-card ">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h1>Question {{index + 1}} of {{size}}</h1>
+      </mat-card-title>
+
+    </mat-card-header>
+    <div class="loading-shade"  *ngIf="isLoading">
+      <mat-spinner></mat-spinner>
+    </div>
+    <mat-card-content>
+
+      <dynamic-form *ngIf="queries" [questions]="queries"></dynamic-form>
+      <div  *ngIf="!queries">
+        Either the system has no questions or the data is currently loading.
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button (click)="decrement()" [disabled]="isLoading">Previous</button>
+      <button mat-button (click)="increment()" [disabled]="isLoading">Next</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -1,0 +1,57 @@
+mat-card-actions{
+  text-align: right
+}
+.mat-card-content{
+  max-width: 1400px;
+  width: 500px;
+  width: -webkit-fill-available;
+  /* height: -webkit-fill-available; */
+}
+
+::ng-deep .mat-form-field{
+  width: -webkit-fill-available;
+  max-width: 1000px;
+}
+.mat-card-content{
+  font-size: 20px;
+}
+.loading-shade {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 56px;
+  right: 0px;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mat-grid-tile .mat-figure{
+  align-items: baseline;
+}
+.grid-container {
+  position: relative;
+}
+
+.dashboard-card {
+  /* position: relative;
+  max-height: 400px;
+  overflow: auto; */
+
+  position: relative;
+  margin-top: 35px;
+  margin-left: 56px;
+  /*bottom: 56px;*/
+  margin-right: 35px;
+  overflow: auto;
+  /* background: rgba(0, 0, 0, 0.15); */
+  /* z-index: 1; */
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: center; */
+  /* top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px; */
+}

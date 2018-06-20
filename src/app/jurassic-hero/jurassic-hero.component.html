@@ -1,0 +1,33 @@
+<div class="grid-container" style="height: -webkit-fill-available">
+  <h1 class="mat-h1">Dashboard</h1>
+  <mat-grid-list cols="4" rowHeight="250px">
+    <mat-grid-tile *ngFor="let card of cards" [colspan]="card.cols" [rowspan]="card.rows">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            <h2>
+              {{card.title}}
+            </h2>
+            <!-- <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+              <button mat-menu-item>Expand</button>
+              <button mat-menu-item>Remove</button>
+            </mat-menu> -->
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content" style="text-align: unset" >
+          <graph-list [list]="nodes" *ngIf="card.title === 'Results'"></graph-list>
+          <div class="container search" fxLayout="row" fxLayoutAlign="start start" *ngIf="card.title === 'Search'" flex>
+            <dynamic-form *ngIf="questions" [questions]="questions"></dynamic-form>
+          </div>
+          <div *ngIf="card.title === 'Question'" flex>
+            <dynamic-form *ngIf="queries" [questions]="queries"></dynamic-form>
+            <h3 *ngIf="!queries">No questions selected or setup yet</h3>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

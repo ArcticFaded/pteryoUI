@@ -1,0 +1,69 @@
+.grid-container {
+  margin: 20px;
+}
+
+.search{
+  height: -webkit-fill-available;
+  padding-bottom: 50px;
+}
+
+.dashboard-card {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+}
+
+.more-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+.dashboard-card-content {
+  text-align: center;
+}
+
+modal .modal-background {
+  /* modal background fixed across whole screen */
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  /* semi-transparent black  */
+  background-color: #000;
+  opacity: 0.75;
+
+  /* z-index must be below .modal and above everything else  */
+  z-index: 900;
+}
+
+modal .modal{
+    /* modal container fixed across whole screen */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    /* z-index must be higher than .modal-background */
+    z-index: 1000;
+
+    /* enables scrolling for tall modals */
+    overflow: auto;
+}
+modal  .modal .modal-body {
+    padding: 20px;
+    background: #fff;
+    z-index: inherit;
+    position: inherit;
+    /* margin exposes part of the modal background */
+    margin: 40px;
+}
+modal {
+    /* modals are hidden by default */
+    display: none;
+}

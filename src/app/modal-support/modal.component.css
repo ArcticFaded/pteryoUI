@@ -1,0 +1,95 @@
+/* MODAL STYLES
+-------------------------------*/
+/* modal {
+    /* modals are hidden by default */
+    /* display: none; */
+/* } */
+
+
+.modal-background {
+    /* modal background fixed across whole screen */
+    position: relative;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    /* semi-transparent black  */
+    background-color: #000;
+    opacity: 0.75;
+
+    /* z-index must be below .modal and above everything else  */
+    z-index: 900;
+}
+.modal {
+    /* modal container fixed across whole screen */
+    position: relative;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    /* z-index must be higher than .modal-background */
+    z-index: 1000;
+
+    /* enables scrolling for tall modals */
+    overflow: auto;
+
+    .modal-body {
+        padding: 20px;
+        background: #fff;
+
+        /* margin exposes part of the modal background */
+        margin: 40px;
+    }
+}
+
+.stack {
+	margin: 20px auto;
+	width: 400px;
+	padding: 0;
+	position: relative;
+	max-width: 100%;
+}
+
+.stack div {
+  max-width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	-webkit-transition: all 0.3s;
+	transition: all 0.3s;
+	outline: 1px solid transparent;
+}
+
+
+/* Bouncy Grid */
+.stack-spread.active {
+	/* transform: scale(0.48); */
+}
+
+/* Vertical Spread */
+.stack-vertspread.active div:nth-child(4) {
+	-webkit-transform: translateY(75px);
+	transform: translateY(75px);
+}
+
+.stack-vertspread.active div:nth-child(3) {
+	-webkit-transform: translateY(50px);
+	transform: translateY(50px);
+	-webkit-transition-delay: .1s;
+	transition-delay: .1s;
+}
+
+.stack-vertspread.active div:nth-child(2) {
+	-webkit-transform: translateY(25px);
+	transform: translateY(25px);
+	-webkit-transition-delay: .2s;
+	transition-delay: .2s;
+}
+.contents{
+  width: 300px;
+  height: 100px;
+  background: rgba(80,158,47,1);
+
+}

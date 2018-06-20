@@ -1,0 +1,18 @@
+.node {
+    cursor: pointer;
+    transition: stroke-width 0.1s ease-out,
+        fill 0.1s ease-out,
+        stroke 0.1s ease-out;
+
+    stroke: rgba(0,0,0,0.4);
+    stroke-width: 0.25;
+}
+
+.node-name {
+  font-family: sans-serif;
+  text-anchor: middle;
+  white-space: nowrap;
+  alignment-baseline: central;
+  font-weight: 300;
+  fill: rgba(0,0,0,0.8);
+}
