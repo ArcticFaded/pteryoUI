@@ -30,6 +30,7 @@ export class LabelVisualComponent {
   @Input('labelVisual') node: Node;
 
   ngOnInit() {
+
     // console.log(this.node)
   }
 }

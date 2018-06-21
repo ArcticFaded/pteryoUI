@@ -30,7 +30,6 @@ export class QuestionViewComponent implements OnInit {
     this.isLoading = true;
     this.questions = searchService.getQuestions();
     jsonDataService.switchTypes$.subscribe(change => {
-      this.queries = [];
       this.populateQuestions();
     })
     jsonDataService.nodes$.subscribe(change => {
@@ -38,10 +37,10 @@ export class QuestionViewComponent implements OnInit {
       this.size = this.nodes.length
       this.populateQuestions();
     })
-    jsonDataService.answer$.subscribe(change => {
-      console.log(change)
-      this.populateQuestions();
-    })
+    // jsonDataService.answer$.subscribe(change => {
+    //   console.log(change)
+    //   this.populateQuestions();
+    // })
     searchService.question$.subscribe(change => {
       console.log(change)
       this.queries = change;

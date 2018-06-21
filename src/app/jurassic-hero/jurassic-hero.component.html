@@ -1,5 +1,5 @@
 <div class="grid-container" style="height: -webkit-fill-available">
-  <h1 class="mat-h1">Dashboard</h1>
+  <h1 class="mat-h1">Question: Search and Filter</h1>
   <mat-grid-list cols="4" rowHeight="250px">
     <mat-grid-tile *ngFor="let card of cards" [colspan]="card.cols" [rowspan]="card.rows">
       <mat-card class="dashboard-card" style="overflow:auto">
@@ -23,6 +23,9 @@
             <dynamic-form *ngIf="questions" [questions]="questions"></dynamic-form>
           </div>
           <div *ngIf="card.title === 'Question'" flex>
+            <div class="loading-shade"  *ngIf="alive">
+              <mat-spinner></mat-spinner>
+            </div>
             <dynamic-form *ngIf="queries" [questions]="queries"></dynamic-form>
             <h3 *ngIf="!queries">No questions selected or setup yet</h3>
           </div>

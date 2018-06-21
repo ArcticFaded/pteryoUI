@@ -12,7 +12,8 @@ const CONFIG = {
     // "rgb(0,94,176)"
     // "rgb(0,82,154)"
     // "rgb(0,60,113)"
-  ]
+  ],
+  APIroot : "http://10.50.212.46:3333"
 }
 
 export default CONFIG;

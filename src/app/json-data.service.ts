@@ -4,9 +4,10 @@ import { Injectable,
 import { Node, Link } from './d3';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject, of } from 'rxjs';
+import APP_CONFIG from './app.config';
 // import { QuestionScripts } from './search.service'
 
-
+const APIroot = APP_CONFIG.APIroot
 const httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
@@ -25,7 +26,6 @@ export class JsonDataService {
   private dataSource = new Subject<any>();
   private searchTerm = new Subject<any>();
   private answer = new Subject<any>();
-
 
   nodes$ = this.nodesSource.asObservable();
   links$ = this.linksSource.asObservable();
@@ -46,15 +46,16 @@ export class JsonDataService {
     //   this.createGraph(data[0]);
     //
     // })
-    this.http.get('http://localhost:3333/all').subscribe((data: QUESTIONS.Widget[]) => {
-      this.createQuestions(data);
+    this.http.get(APIroot + '/all').subscribe((data: QUESTIONS.Widget[]) => {
+        this.createQuestions(data);
     })
   }
   createQuestions(data: QUESTIONS.Widget[]){
-    console.log(data)
+    // console.log(data)
     for(var nodes of data){
-      // console.log(nodes)
-      this.nodes.push(new Node(2, nodes.data))
+      var level = 2
+
+      this.nodes.push(new Node(level, nodes.data))
     }
     this.sortNodes();
     this.nodesSource.next(this.nodes)
@@ -71,6 +72,7 @@ export class JsonDataService {
       }
       return a.label.localeCompare(b.label); });
   }
+
   // createGraph(data: API.RootObject){
   //   var gloCount = 0;
   //   var i = 0;
@@ -106,57 +108,100 @@ export class JsonDataService {
   //   this.linksSource.next(this.links);
   //   this.dataSource.next(data);
   // }
-  form(val: {key:string, value:string}){
+  form(val){
 
-    console.log(Object.keys(val))
-    if(Object.keys(val).length === 1){
-      var id = Object.keys(val)[0];
-
-      this.http.post('http://localhost:3333/create/answer', {
-        id: id,
-        type: API.typeToString[val[id]],
-        answered: true
-      }).subscribe((data) => {
-        console.log(data)
-        this.answer.next(val);
-      }, (error) => {
-        console.log(error)
-      })
-    }
-    else{
-      var id = Object.keys(val)[0].split(" ")[0]
-      var values = Object.keys(val).map(value => {
-        return {key: value.split(" ")[1], value: val[value]}
-      })
-      console.log(id, values)
-      this.http.put('http://localhost:3333/update/answer', {
-        id: id,
-        value: values
-      }, httpOptions).subscribe((data) => {
-        console.log(data)
-        this.answer.next(val);
-
-      }, (error) => {
-        console.log(error)
-      })
-    }
-  }
-  search(term){
-    console.log(term)
-    this.searchTerm.next(term);
-  }
-  updateSubQuestions(value, id){
-    this.http.put('http://localhost:3333/update/type', {
+    // console.log(Object.keys(val))
+    // console.log(val)
+    var id = Object.keys(val)[0];
+    this.http.post(APIroot + '/create/answer', {
       id: id,
-      type: value
-    }, httpOptions).subscribe((data) => {
-      console.log(data)
-      this.typeSource.next(value)
+      type: val[id],
+      // API.typeToString[val[id]],
+      answered: true
+    }).subscribe((data) => {
+      // console.log(data)
+      this.answer.next(val);
+      this.typeSource.next(id);
     }, (error) => {
       console.log(error)
+      this.updateSubQuestions(id, val[id]).then((data) => {
+          console.log(data)
+      }, (same) => {
+        if(same){
+          var values = Object.keys(val).filter(index => {
+            if(index.split(" ").length === 1){
+              return false;
+            }
+            return true;
+          }).map(value => {
+            // console.log(value.split(" ")[1]);
+            return {[value.split(" ")[1]]: val[value]};
+          })
+          var response = {[API.typeToString[val[id]]]: {}};
+
+          for(var vals of values){
+            var key = Object.keys(vals)[0]
+
+            response[API.typeToString[val[id]]][key] = vals[key]
+          }
+          // console.log(response)
+          this.updateSubValues(id, response, API.typeToString[val[id]])
+          // API.typeToString[val[id]])
+        }
+      })
     })
 
   }
+  search(term){
+    // console.log(term)
+    this.searchTerm.next(term);
+  }
+  updateSubValues(id, value, type) {
+    this.http.get(APIroot + '/find/question/' + id).subscribe(
+      (data: API.AnswerFormat) => {
+        data.Value[type.charAt(0).toUpperCase() + type.slice(1)] = value[type]
+        this.http.put('http://localhost:3333/update/answer', {
+          id: id,
+          value: data.Value
+        }, httpOptions).subscribe((data) => {
+          // console.log(data)
+          this.answer.next(type);
+        }, (error) => {
+          console.log(error)
+        })
+    }, (error) => {
+      console.log(error)
+    })
+  }
+  async updateSubQuestions(id, value){
+    // console.log(id, value)
+    return new Promise((resolve, reject) => {
+      console.log(value)
+      this.http.get(APIroot + '/find/question/' + id).subscribe(
+        (data: API.AnswerFormat) => {
+          if(data.Type === value){
+            reject(true)
+          }else {
+            this.http.put(APIroot + '/update/type', {
+              id: id,
+              type: value,
+            }, httpOptions).subscribe((data) => {
+              // console.log(data)
+              resolve(true);
+              this.typeSource.next(id)
+            }, (error) => {
+              reject(false)
+              console.log(error)
+            })
+
+          }
+        }, (error) => {
+          reject(false)
+          console.log(error)
+        })
+    })
+  }
+
   getTerm(): Observable<string>{
     return of(this.term);
   }
@@ -216,19 +261,25 @@ export namespace QUESTIONS {
   }
 }
 export namespace API{
-
+    export interface AnswerFormat {
+      id: string;
+      Answered: boolean;
+      Type: string;
+      Value: any;
+    }
     export const typeToString = {
       "timestamp": "integer",
-      "day": "date",
-      "date": "date",
+      "day": "string",
+      "date": "string",
       "money": "number",
       "real": "number",
       "url":"string",
       "year":"date",
       "zipcode":"string",
-      "string":"string",
       "email":"string",
-      "integer":"integer"
+      "string":"string",
+      "integer":"integer",
+      "number":"number"
     }
     export interface SuggestedFormat {
         type: string;

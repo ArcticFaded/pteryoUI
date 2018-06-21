@@ -32,7 +32,9 @@ export class Node implements d3.SimulationNodeDatum {
   addChild = (a:Node) => {
     this.collapse.push(a);
   }
-
+  setLevel = (a:number) => {
+    this.level = a;
+  }
   setIndex = (a:number) => {
     this.index = a;
   }

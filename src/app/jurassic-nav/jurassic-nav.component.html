@@ -8,8 +8,8 @@
     [opened]="!(isHandset$ | async)">
     <mat-toolbar color="primary">Menu</mat-toolbar>
     <mat-nav-list>
-      <a mat-list-item routerLink="/jurassic-hero">Sample Reports</a>
-      <a mat-list-item routerLink="/question-view">Sample Questions</a>
+      <a mat-list-item routerLink="/jurassic-hero">Search and Answer questions</a>
+      <a mat-list-item routerLink="/question-view">Answer questions</a>
       <!-- <a mat-list-item routerLink="/second-page">Second Page</a>
       <a mat-list-item routerLink="/third-page">Third Page</a> -->
     </mat-nav-list>
@@ -24,7 +24,7 @@
         *ngIf="isHandset$ | async">
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
-      <span>Application Title</span>
+      <span>Jurassic Gym</span>
     </mat-toolbar>
     <router-outlet></router-outlet>
   </mat-sidenav-content>

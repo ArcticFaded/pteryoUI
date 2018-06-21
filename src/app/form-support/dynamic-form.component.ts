@@ -9,15 +9,13 @@ import { JsonDataService } from '../json-data.service'
   selector: 'dynamic-form',
   template: `
   <div>
-  <form mat-form-field (ngSubmit)="onSubmit()" [formGroup]="form">
+  <form mat-form-field [formGroup]="form">
 
     <div *ngFor="let question of questions" class="form-row">
       <app-question [question]="question" [form]="form"></app-question>
     </div>
 
-    <div class="form-row">
-      <button mat-button type="submit" *ngIf="questions[0].controlType != 'display'" [disabled]="!form.valid">Save</button>
-    </div>
+
   </form>
 
   <!-- <div *ngIf="payLoad" class="form-row">
@@ -40,41 +38,40 @@ export class DynamicFormComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.form = this.qcs.toFormGroup(this.questions);
     // this.onChanges();
-    console.log(this.form.controls)
-    var x = []
-    for(var fields in this.form.controls){
-      x[fields] = this.form.controls[fields].valueChanges
-      console.log(this.form.get(fields))
-    }
-    for(var fields in x){
-      x[fields].subscribe(value => {
-        console.log(value)
-      })
-    }
+    // console.log(this.form.controls)
+    this.onChanges()
   }
   ngOnChanges(): void {
     this.form = this.qcs.toFormGroup(this.questions);
     // this.onChanges();
-    console.log(this.form.controls)
-    var x = []
-    for(var fields in this.form.controls){
-      x[fields] = this.form.controls[fields].valueChanges
-      console.log(this.form.get(fields))
-    }
-    for(var fields in x){
-      x[fields].subscribe(value => {
-        console.log(value)
-      })
-    }
+    // console.log(this.form.controls)
+    this.onChanges()
+    // var x = []
+    // for(var fields in this.form.controls){
+    //   x[fields] = this.form.controls[fields].valueChanges
+    //   console.log(this.form.get(fields))
+    // }
+    // for(var fields in x){
+    //   x[fields].subscribe(value => {
+    //     console.log(value)
+    //   })
+    // }
     // this.form.valueChanges.subscribe(value => {
     //   if(value.search){
     //     this.jsonDataService.search(value.search);
     //   }
     // })
   }
-  onSubmit() {
-    this.payLoad = JSON.stringify(this.form.value);
-    console.log(this.form)
-    this.jsonDataService.form(this.form.value)
+  onChanges() {
+    // this.payLoad = JSON.stringify(this.form.value);
+    // console.log(this.form)
+    // this.jsonDataService.form(this.form.value)
+    this.form.valueChanges.subscribe(value => {
+      // console.log(value, this.form.value)
+      this.jsonDataService.form(this.form.value);
+        // if(value.search){
+        //   this.jsonDataService.search(value.search);
+        // }
+    })
   }
 }

@@ -21,7 +21,7 @@ import { SearchService } from '../../search.service'
         <svg #svg [attr.width]="_options.width" [attr.height]="_options.height" class="scroll-svg">
           <g class = "chartGroup" [labelVisual]="node" (click)="expandNode(node)" *ngFor="let node of visNodes"></g>
         </svg>
-        <div *ngIf="visNodes.length ===0">There are no results</div>
+        <div *ngIf="visNodes.length ===0"><h3>There are no results</h3></div>
 
       </div>
     </div>
@@ -92,10 +92,10 @@ export class GraphListComponent {
         if(this.nodes[similar].label === null){
           continue
         }
-        if(this.jaacardSim(this.nodes[entry].something.norm, this.nodes[similar].something.norm) > 0.7){
-          sim = true
-          simIndex = this.nodes[similar].something.norm
-        }
+        // if(this.jaacardSim(this.nodes[entry].something.norm, this.nodes[similar].something.norm) > 0.7){
+        //   sim = true
+        //   simIndex = this.nodes[similar].something.norm
+        // }
       }
       if(!sim){
         this.visNodes.push(this.nodes[entry]);

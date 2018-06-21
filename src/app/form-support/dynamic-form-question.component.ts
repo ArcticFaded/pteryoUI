@@ -8,7 +8,7 @@ import { JsonDataService } from '../json-data.service';
   selector: 'app-question',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-  <mat-form-field class="container" [formGroup]="form">
+<mat-form-field class="container" [formGroup]="form">
 <label [attr.for]="question.key">{{question.label}}</label>
 <div style="color: red" *ngIf="!isValid">*{{question.id}} is required</div>
 <div [ngSwitch]="question.controlType">
@@ -20,13 +20,13 @@ import { JsonDataService } from '../json-data.service';
     <mat-option *ngFor="let opt of question.options" [value]="opt.key">{{opt.value}}</mat-option>
   </mat-select>
 
-  <mat-card *ngSwitchCase="'display'">
+  <mat-card *ngSwitchCase="'display'" style="width:fit-content">
     <mat-card-content>
-      <h2>{{question.value}}</h2>
+      <h3>{{question.value}}</h3>
     </mat-card-content>
     <mat-card-actions>
-    <input matInput style="display:none;" [formControlName]="question.key">
-      <div class="mat-button" (click)="something()">Re-Edit</div>
+    <input matInput style="display:none; z-index:0" [formControlName]="question.key">
+      <!-- <div class="mat-button" (click)="something()">Re-Edit</div> -->
     </mat-card-actions>
   </mat-card>
 
@@ -44,13 +44,17 @@ export class DynamicFormQuestionComponent {
 
   ngOnInit(){
     console.log(this.question, this.form.controls, this.question.key)
+    if(Object.keys(this.form.controls).length === 1 && this.question.value != ""){
+      this.jsonDataService.form({ [this.question.key] : this.question.value});
+    }
     this.form.controls[this.question.key].valueChanges.subscribe((value) => {
-      console.log(value, this.question.key, this.question)
       if(this.question.key === 'search'){
         this.jsonDataService.search(value);
       }
       if(this.question.controlType === 'dropdown'){
-        this.jsonDataService.updateSubQuestions(value, this.question.key)
+        console.log(this.question)
+        // this.jsonDataService.updateSubQuestions(this.form.value, this.question.key)
+        this.jsonDataService.form({ [this.question.key] : value});
       }
       this.question.value = value;
 
@@ -59,5 +63,7 @@ export class DynamicFormQuestionComponent {
   something(){
     console.log("not a submit")
   }
-  get isValid() { return this.form.controls[this.question.key].valid; }
+  get isValid() {
+    return this.form.controls[this.question.key].valid;
+  }
 }

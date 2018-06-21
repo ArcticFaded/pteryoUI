@@ -13,3 +13,16 @@ body.modal-open {
     /* body overflow is hidden to hide main scrollbar when modal window is open */
     overflow: hidden;
 }
+
+.mat-sidenav-content:before {
+    position: absolute;
+    content: '';
+    background: url(/assets/47320.svg); /*partially transparent image*/
+    background-repeat: no-repeat;
+    background-position: 60px 30px;
+    opacity: 0.05;
+    z-index:1;
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+    pointer-events: none;
+}

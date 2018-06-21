@@ -4,19 +4,26 @@ import { Observable, Subject, of } from 'rxjs';
 import { Node } from './d3';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DropdownQuestion, QuestionBase, TextboxQuestion, InformationQuestion } from './form-support';
+import APP_CONFIG from './app.config';
 
-
+const APIroot = APP_CONFIG.APIroot
 @Injectable({
   providedIn: 'root'
 })
 export class SearchService {
   private questionSource = new Subject<any>();
+  private loadingSource = new Subject<any>();
   question$ = this.questionSource.asObservable();
+  loading$ = this.loadingSource.asObservable();
   // private question: QuestionBase<any>;
   private KEYWORDS = ["SELECT", "INPUT", "BUTTON", "TEXTAREA"]
   private VALIDKEYWORDS = ["INPUT", "TEXTAREA"] //TEMP
 
-
+  private isEmptyObject(o) {
+    return Object.keys(o).every(function(x) {
+        return o[x]===''||o[x]===null;  // or just "return o[x];" for falsy values
+    });
+  }
   private wordInString(string, keywords) {
       return keywords.map(keyword => {return string.indexOf(keyword)}).filter(res => res > -1);
   }
@@ -27,42 +34,47 @@ export class SearchService {
   createQuestionOnType(node: Node){
     let quest:  QuestionBase<any>[] = [];
     // this.createAskType(node, quest);
-
-    this.http.get('http://localhost:3333/find/question/' + node.id).subscribe(
-      (data) => {
+    this.loadingSource.next(true);
+    this.http.get(APIroot + '/find/question/' + node.id).subscribe(
+      (data: QuestionScripts.AnswerFormat) => {
         console.log(data)
         var options = Object.keys(QuestionScripts.typeToString).map(val => {
           return {key: val, value: val}
         })
         var label = `What is the data type of: "${node.label}"?`
+
         quest.push(this.createDropdownQuestion(node.id, label, options, 1, data.Type))
         if(data.Answered){
-          if(data.Value){
-            quest.push(new InformationQuestion({
-              key: node.id,
-              value: `All questions have been answered for ${node.label}`
-            }) );
-            this.questionSource.next(quest);
-            return
-          }
-          switch(QuestionScripts.typeToString[data.Type]){
+          // console.log(QuestionScripts.typeToString[data.Type])
+          // console.log(data.Value)
+
+          var type = QuestionScripts.typeToString[data.Type].charAt(0).toUpperCase() + QuestionScripts.typeToString[data.Type].slice(1)
+          switch(data.Type){
             case 'string': {
               var questionString = QuestionScripts.createString(node.label)
               var i = 0
+
               for(var q in questionString){
-                // console.log(question)
-                quest.push(this.createTextboxQuestion(node.id + ' ' + q, questionString[q],"",true,i))
+                var index = q.charAt(0).toUpperCase() + q.slice(1)
+                var defaultAns = data.Value[type][index]
+
+                quest.push(this.createTextboxQuestion(node.id + ' ' + q, questionString[q],defaultAns || "",false,i))
                 i = i + 1;
               }
+
               this.questionSource.next(quest);
               break;
             }
             case 'integer': {
-              var questionInteger = QuestionScripts.createInteger(node.label)
-              var i = 0
+              var questionInteger = QuestionScripts.createInteger(node.label);
+              var i = 0;
               for(var q in questionInteger){
-                // console.log(question)
-                quest.push(this.createTextboxQuestion(node.id + ' ' + q, questionInteger[q],"",true,i))
+
+                var index = q.charAt(0).toUpperCase() + q.slice(1)
+                var defaultAns = data.Value[type][index]
+
+
+                quest.push(this.createTextboxQuestion(node.id + ' ' + q, questionInteger[q],defaultAns || "",false,i))
                 i = i + 1;
               }
               this.questionSource.next(quest);
@@ -72,15 +84,23 @@ export class SearchService {
               var questionNumber = QuestionScripts.createNumber(node.label)
               var i = 0
               for(var q in questionNumber){
-                // console.log(question)
-                quest.push(this.createTextboxQuestion(node.id + ' ' + q, questionNumber[q],"",true,i))
+                var index = q.charAt(0).toUpperCase() + q.slice(1)
+                var defaultAns = data.Value[type][index]
+
+                quest.push(this.createTextboxQuestion(node.id + ' ' + q, questionNumber[q],defaultAns || "",false,i))
                 i = i + 1;
               }
               this.questionSource.next(quest);
               break;
             }
-          }
-        }
+            default: {
+              quest.push(new InformationQuestion({value: `There are no questions of type ${data.Type} at this time`}))
+              this.questionSource.next(quest);
+              break;
+            }
+          } // AFTER SWITCH
+
+        } // AFTER ANSWERED
 
       },
       (error) => {
@@ -96,11 +116,11 @@ export class SearchService {
       return {key: val, value: val}
     })
     var label = `What is the data type of: "${node.label}"?`
-    console.log(node)
-    this.http.get('http://localhost:3333/find/label/' + node.label).subscribe((data) => {
+    // console.log(node)
+    this.http.get(APIroot + '/find/label/' + node.label).subscribe((data: QuestionScripts.TypeFormat) => {
         console.log(data)
         if(data.Widget.offers.length > 0){
-          console.log(data.Widget.offers[0])
+          // console.log(data.Widget.offers[0])
 
           quest.push(this.createDropdownQuestion(node.id, label, options, 1, data.Widget.offers[0]))
           this.questionSource.next(quest);
@@ -112,9 +132,9 @@ export class SearchService {
           this.questionSource.next(quest);
         }
     }, (error) => {
-      this.http.get('http://localhost:3333/find/widget/' + node.something.abstractWidgetKey).subscribe((data) => {
+      this.http.get(APIroot + '/find/widget/' + node.something.abstractWidgetKey).subscribe((data:  QuestionScripts.TypeFormat) => {
         if(data.Widget.offers.length > 0){
-          console.log(data.Widget.offers[0])
+          // console.log(data.Widget.offers[0])
           quest.push(this.createDropdownQuestion(node.id, label, options, 1, data.Widget.offers[0]))
 
           this.questionSource.next(quest);
@@ -126,9 +146,9 @@ export class SearchService {
           this.questionSource.next(quest);
         }
       }, (error) => {
-        console.log(error)
+        // console.log(error)
         //ask what type of widget it is
-        console.log(options)
+        // console.log(options)
         quest.push(this.createDropdownQuestion(node.id, label, options, 1))
         this.questionSource.next(quest);
       })
@@ -150,7 +170,7 @@ export class SearchService {
       label: label,
       value: value,
       options: options,
-      required: true,
+      required: false,
       order: order
     });
   }
@@ -169,13 +189,13 @@ export class SearchService {
         required: false,
         order: 1
       }),
-      new TextboxQuestion({
-        key: 'search2',
-        label: 'Search by Partial String Match',
-        value: '',
-        required: false,
-        order: 2
-      }),
+      // new TextboxQuestion({
+      //   key: 'search2',
+      //   label: 'Search by Partial String Match',
+      //   value: '',
+      //   required: false,
+      //   order: 2
+      // }),
 
     ];
 
@@ -184,28 +204,29 @@ export class SearchService {
 }
 
 export namespace QuestionScripts {
-  const maxLenght = `What should the max length of`;
+  const maxLength = `What should the max length of`;
   const minLength = `What should the min length of`;
   const maxValue = `What should the max value of`;
   const minValue = `What should the min value of`; // {0} be?
   const precision = `How many significant figures does`; // {0} have?
   export const typeToString = {
     "timestamp": "integer",
-    "day": "date",
-    "date": "date",
+    "day": "string",
+    "date": "string",
     "money": "number",
     "real": "number",
     "url":"string",
     "year":"date",
     "zipcode":"string",
-    "string":"string",
     "email":"string",
-    "integer":"integer"
+    "string":"string",
+    "integer":"integer",
+    "number":"number"
   }
 
   export function createString(variable: string): (String){
     var question = <String>{};
-    question.maxLenght = maxLenght + ` "${variable}" be`;
+    question.maxLength = maxLength + ` "${variable}" be`;
     question.minLength = minLength + ` "${variable}" be`;
 
     return question;
@@ -226,7 +247,7 @@ export namespace QuestionScripts {
     return question;
   }
   export interface String {
-    maxLenght: string;
+    maxLength: string;
     minLength: string;
   }
   export interface Numeric{
@@ -242,5 +263,16 @@ export namespace QuestionScripts {
   export interface Integer{
     maxValue: string;
     minValue: string;
+  }
+
+  export interface TypeFormat {
+    Id: string;
+    Widget: any;
+  }
+  export interface AnswerFormat {
+    id: string;
+    Answered: boolean;
+    Type: string;
+    Value: any;
   }
 }
