@@ -20,7 +20,7 @@ import { JsonDataService } from '../json-data.service';
     <mat-option *ngFor="let opt of question.options" [value]="opt.key">{{opt.value}}</mat-option>
   </mat-select>
 
-  <mat-card *ngSwitchCase="'display'" style="width:fit-content">
+  <mat-card *ngSwitchCase="'display'" style="width:fit-content; width: -moz-max-content">
     <mat-card-content>
       <h3>{{question.value}}</h3>
     </mat-card-content>
@@ -53,7 +53,6 @@ export class DynamicFormQuestionComponent {
       }
       if(this.question.controlType === 'dropdown'){
         console.log(this.question)
-        // this.jsonDataService.updateSubQuestions(this.form.value, this.question.key)
         this.jsonDataService.form({ [this.question.key] : value});
       }
       this.question.value = value;

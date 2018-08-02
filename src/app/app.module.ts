@@ -22,6 +22,7 @@ import { GraphListComponent } from './visuals/graph-list/graph-list.component';
 import { DynamicFormComponent, DynamicFormQuestionComponent } from './form-support'
 import { SHARED_VISUALS } from './visuals/shared';
 import { QuestionViewComponent } from './question-view/question-view.component';
+import { UiScrollModule } from 'ngx-ui-scroll'
 
 const appRoutes: Routes = [
     { path: 'jurassic-hero', component: JurassicHeroComponent},
@@ -46,6 +47,7 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    UiScrollModule,
     MatInputModule,
     LayoutModule,
     MatFormFieldModule,

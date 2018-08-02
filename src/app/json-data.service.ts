@@ -3,8 +3,9 @@ import { Injectable,
   ChangeDetectionStrategy } from '@angular/core';
 import { Node, Link } from './d3';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, Subject, of } from 'rxjs';
+import { Observable, Subject, BehaviorSubject, of, from } from 'rxjs';
 import APP_CONFIG from './app.config';
+import { mergeMap, flatMap, filter } from 'rxjs/operators';
 // import { QuestionScripts } from './search.service'
 
 const APIroot = APP_CONFIG.APIroot
@@ -37,8 +38,10 @@ export class JsonDataService {
 
   public nodes: Node[] = [];
   public links: Link[] = [];
+  private permNodes: Node[] = [];
   data: API.RootObject;
   questions: QUESTIONS.Widget[];
+  startIndex = 0
   term = "";
 
   constructor(private http: HttpClient ){
@@ -52,14 +55,19 @@ export class JsonDataService {
   }
   createQuestions(data: QUESTIONS.Widget[]){
     // console.log(data)
-    for(var nodes of data){
-      var level = 2
-
-      this.nodes.push(new Node(level, nodes.data))
+    this.nodes = []
+    // for(var nodes of data){
+    //   var level = 2
+    //
+    //   this.nodes.push(new Node(level, nodes.data))
+    // }
+    for(let i = this.startIndex; i <= this.startIndex + data.length - 1; i++){
+      this.nodes.push(new Node(2, data[i].data))
     }
     this.sortNodes();
     this.nodesSource.next(this.nodes)
   }
+
 
   sortNodes(){
     this.nodes.sort(function(a,b){
@@ -71,6 +79,7 @@ export class JsonDataService {
         return 0;
       }
       return a.label.localeCompare(b.label); });
+    this.permNodes = this.nodes;
   }
 
   // createGraph(data: API.RootObject){
@@ -108,99 +117,93 @@ export class JsonDataService {
   //   this.linksSource.next(this.links);
   //   this.dataSource.next(data);
   // }
-  form(val){
 
-    // console.log(Object.keys(val))
-    // console.log(val)
-    var id = Object.keys(val)[0];
+  private formatValue(id, val) {
+    var values = Object.keys(val).filter(index => {
+      if(index.split(" ").length === 1){
+        return false;
+      }
+      return true;
+    }).map(value => {
+      return {[value.split(" ")[1]]: val[value]};
+    })
+    var response = {[API.typeToString[val[id]]]: {}};
+
+    for(var vals of values){
+      var key = Object.keys(vals)[0]
+      response[API.typeToString[val[id]]][key] = vals[key]
+    }
+    return response;
+  }
+  updateValue(id, type, value) {
+    value = this.formatValue(id, value)
+    this.http.put(APIroot + '/update/answer/' + type, {
+      id: id,
+      value: value
+    }, httpOptions).subscribe((data) => {
+      console.log("success")
+      this.answer.next(type);
+    })
+  }
+  updateType(id, type){
+    this.http.put(APIroot + '/update/type', {
+      id: id,
+      type: type,
+    }, httpOptions).subscribe((data) => {
+      this.typeSource.next(id)
+    }, (error) => {
+      console.log("failed to update answer")
+    })
+  }
+  initType(id, type){
     this.http.post(APIroot + '/create/answer', {
       id: id,
-      type: val[id],
-      // API.typeToString[val[id]],
+      type: type,
       answered: true
     }).subscribe((data) => {
       // console.log(data)
-      this.answer.next(val);
+      // this.answer.next(val); // used for loading
       this.typeSource.next(id);
     }, (error) => {
-      console.log(error)
-      this.updateSubQuestions(id, val[id]).then((data) => {
-          console.log(data)
-      }, (same) => {
-        if(same){
-          var values = Object.keys(val).filter(index => {
-            if(index.split(" ").length === 1){
-              return false;
-            }
-            return true;
-          }).map(value => {
-            // console.log(value.split(" ")[1]);
-            return {[value.split(" ")[1]]: val[value]};
-          })
-          var response = {[API.typeToString[val[id]]]: {}};
-
-          for(var vals of values){
-            var key = Object.keys(vals)[0]
-
-            response[API.typeToString[val[id]]][key] = vals[key]
-          }
-          // console.log(response)
-          this.updateSubValues(id, response, API.typeToString[val[id]])
-          // API.typeToString[val[id]])
-        }
-      })
+      console.log("failed to init answer")
     })
+  }
+  form(val){
+    var id = Object.keys(val)[0];
+    this.http.get(APIroot + '/find/question/' + id).subscribe(
+      (success: API.AnswerFormat) => {
+        if(success.Type === val[id]){
+          //Update Value
+          this.updateValue(id, val[id], val)
+        } else {
+          //Update Type
 
+          this.updateType(id, val[id])
+        }
+      }, (error) => { // Create an answer
+        console.log("question does not exist")
+        this.initType(id, val[id])
+      }
+    )
   }
   search(term){
     // console.log(term)
-    this.searchTerm.next(term);
+    var visNodes = [];
+    for(var node of this.nodes){
+      var index = this.nodes.findIndex(i => i.id === node.id);
+      var nodeIndex = visNodes.indexOf(node);
+      var trying = node.label || node.id;
+      if(trying.toLowerCase().startsWith(term.toLowerCase())){
+        if(nodeIndex === -1 ){
+          visNodes.push(node)
+        } 
+      }
+    }
+    console.log("updated again")
+    this.nodesSource.next(visNodes)
+    // this.searchTerm.next(term);
   }
-  updateSubValues(id, value, type) {
-    this.http.get(APIroot + '/find/question/' + id).subscribe(
-      (data: API.AnswerFormat) => {
-        data.Value[type.charAt(0).toUpperCase() + type.slice(1)] = value[type]
-        this.http.put('http://localhost:3333/update/answer', {
-          id: id,
-          value: data.Value
-        }, httpOptions).subscribe((data) => {
-          // console.log(data)
-          this.answer.next(type);
-        }, (error) => {
-          console.log(error)
-        })
-    }, (error) => {
-      console.log(error)
-    })
-  }
-  async updateSubQuestions(id, value){
-    // console.log(id, value)
-    return new Promise((resolve, reject) => {
-      console.log(value)
-      this.http.get(APIroot + '/find/question/' + id).subscribe(
-        (data: API.AnswerFormat) => {
-          if(data.Type === value){
-            reject(true)
-          }else {
-            this.http.put(APIroot + '/update/type', {
-              id: id,
-              type: value,
-            }, httpOptions).subscribe((data) => {
-              // console.log(data)
-              resolve(true);
-              this.typeSource.next(id)
-            }, (error) => {
-              reject(false)
-              console.log(error)
-            })
 
-          }
-        }, (error) => {
-          reject(false)
-          console.log(error)
-        })
-    })
-  }
 
   getTerm(): Observable<string>{
     return of(this.term);
@@ -208,6 +211,7 @@ export class JsonDataService {
   getNodes(): Observable<Node[]>{
     return of(this.nodes);
   }
+
   getLinks(): Observable<Link[]>{
     return of(this.links);
   }

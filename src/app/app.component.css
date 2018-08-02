@@ -9,3 +9,10 @@
 ::ng-deep .mat-option.mat-active{
   color: rgba(0,59,92,1);
 }
+
+::ng-deep .mat-card{
+  font-family: 'Open Sans', sans-serif;
+}
+/* h3{
+  font-family:
+} */

@@ -4,9 +4,25 @@
 
 .search{
   height: -webkit-fill-available;
+  height: -moz-available;          /* WebKit-based browsers will ignore this. */
   padding-bottom: 50px;
 }
 
+.item-focused{
+  background: rgba(80,158,47,0.15);
+}
+.item-card {
+  white-space: nowrap;
+  width: max-content;
+  min-width: 210px;
+  height: 50px;
+  padding: 2px;
+}
+.viewport {
+    height: 320px;
+    overflow-y: auto;
+    overflow-anchor: none;
+}
 .dashboard-card {
   position: absolute;
   top: 15px;

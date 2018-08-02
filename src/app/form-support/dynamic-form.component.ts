@@ -37,41 +37,22 @@ export class DynamicFormComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.form = this.qcs.toFormGroup(this.questions);
-    // this.onChanges();
-    // console.log(this.form.controls)
-    this.onChanges()
+    if(!this.form.controls.search){
+      this.onChanges()
+    }
   }
   ngOnChanges(): void {
     this.form = this.qcs.toFormGroup(this.questions);
-    // this.onChanges();
-    // console.log(this.form.controls)
     this.onChanges()
-    // var x = []
-    // for(var fields in this.form.controls){
-    //   x[fields] = this.form.controls[fields].valueChanges
-    //   console.log(this.form.get(fields))
-    // }
-    // for(var fields in x){
-    //   x[fields].subscribe(value => {
-    //     console.log(value)
-    //   })
-    // }
-    // this.form.valueChanges.subscribe(value => {
-    //   if(value.search){
-    //     this.jsonDataService.search(value.search);
-    //   }
-    // })
+
   }
   onChanges() {
-    // this.payLoad = JSON.stringify(this.form.value);
-    // console.log(this.form)
-    // this.jsonDataService.form(this.form.value)
+    console.log(this.form.controls)
+
     this.form.valueChanges.subscribe(value => {
       // console.log(value, this.form.value)
       this.jsonDataService.form(this.form.value);
-        // if(value.search){
-        //   this.jsonDataService.search(value.search);
-        // }
+
     })
   }
 }

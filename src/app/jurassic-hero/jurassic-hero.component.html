@@ -1,4 +1,4 @@
-<div class="grid-container" style="height: -webkit-fill-available">
+<div class="grid-container" style="height: -webkit-fill-available; height: -moz-available;">
   <h1 class="mat-h1">Question: Search and Filter</h1>
   <mat-grid-list cols="4" rowHeight="250px">
     <mat-grid-tile *ngFor="let card of cards" [colspan]="card.cols" [rowspan]="card.rows">
@@ -18,7 +18,20 @@
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content" style="text-align: unset" >
-          <graph-list [list]="nodes" *ngIf="card.title === 'Results'"></graph-list>
+          <!-- <graph-list [list]="nodes" *ngIf="card.title === 'Results'"></graph-list> -->
+          <div class="viewport" *ngIf="card.title === 'Results'">
+            <div *uiScroll="let item of datasource">
+                <mat-card class="item-card" [ngClass]="{'item-focused': isSelected(item.id)}" (click)="expand(item)">
+                  <mat-card-header>
+                    <mat-card-title style="position: sticky; top:0; z-index:999;">
+                      <h2 >
+                        {{item.label}}
+                      </h2>
+                    </mat-card-title>
+                  </mat-card-header>
+                </mat-card>
+            </div>
+          </div>
           <div class="container search" fxLayout="row" fxLayoutAlign="start start" *ngIf="card.title === 'Search'" flex>
             <dynamic-form *ngIf="questions" [questions]="questions"></dynamic-form>
           </div>

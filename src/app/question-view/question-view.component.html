@@ -1,4 +1,4 @@
-<div class="grid-container" style="height: -webkit-fill-available">
+<div class="grid-container" style="height: -webkit-fill-available; height: -moz-available">
   <!-- <h1 class="mat-h1">Questions</h1>
   <mat-grid-list cols="2" rowHeight="500px">
     <mat-grid-tile [colspan]="1" [rowspan]="1">
@@ -20,7 +20,7 @@
     <mat-card-content>
 
       <dynamic-form *ngIf="queries" [questions]="queries"></dynamic-form>
-      <div  *ngIf="!queries">
+      <div  *ngIf="!queries || queries.length === 0">
         Either the system has no questions or the data is currently loading.
       </div>
     </mat-card-content>

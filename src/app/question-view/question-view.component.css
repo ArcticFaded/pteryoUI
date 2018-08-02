@@ -7,10 +7,14 @@ mat-card-actions{
   width: -webkit-fill-available;
   /* height: -webkit-fill-available; */
 }
-
+::ng-deep .mat-drawer-content{
+  overflow: initial;
+}
 ::ng-deep .mat-form-field{
   width: -webkit-fill-available;
+  width: -moz-available;          /* WebKit-based browsers will ignore this. */
   max-width: fit-content;
+  max-width: -moz-fit-content;
   white-space: nowrap;
 }
 .mat-card-content{
@@ -45,7 +49,7 @@ mat-card-actions{
   margin-left: 56px;
   /*bottom: 56px;*/
   margin-right: 35px;
-  overflow: auto;
+  overflow: hidden;
   /* background: rgba(0, 0, 0, 0.15); */
   /* z-index: 1; */
   /* display: flex; */

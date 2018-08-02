@@ -3,7 +3,10 @@ import { JsonDataService } from '../json-data.service'
 import { SearchService } from '../search.service'
 import { ModalService } from '../modal.service'
 import { Node, Link } from '../d3';
+import { Observable, Subject, of, defer } from 'rxjs';
+import { flatMap, withLatestFrom, take, map, single } from 'rxjs/operators'
 
+import { IDatasource } from 'ngx-ui-scroll';
 
 @Component({
   selector: 'jurassic-hero',
@@ -19,8 +22,25 @@ export class JurassicHeroComponent implements OnInit, OnDestroy {
 
   nodes: Node[] = [];
   links: Link[] = [];
+  selected: 0;
   questions : any[];
   queries: any[];
+
+  public datasource: IDatasource = {
+    get: (index, count, callback) => {
+      if(index < this.jsonDataService.startIndex) {
+        count -= Math.abs(index - this.jsonDataService.startIndex)
+        index = this.jsonDataService.startIndex
+      }
+      callback(this.nodes.slice(index, index + count))
+    }
+    ,
+    settings: {
+      startIndex: this.jsonDataService.startIndex
+    }
+  }
+
+
 
   private alive: boolean = false;
   constructor(private jsonDataService: JsonDataService,  private searchService: SearchService,
@@ -35,6 +55,7 @@ export class JurassicHeroComponent implements OnInit, OnDestroy {
 
     jsonDataService.nodes$.subscribe(change => {
       this.nodes = change
+      this.datasource.adapter.reload();
     })
     jsonDataService.links$.subscribe(change => {
       this.links = change
@@ -42,7 +63,7 @@ export class JurassicHeroComponent implements OnInit, OnDestroy {
     jsonDataService.switchTypes$.subscribe(change => {
       // console.log(change)
       var index = this.nodes.findIndex(i => i.id === change);
-      this.queries = [];
+      // this.queries = [];
       this.populateQuestions(index);
     })
     searchService.question$.subscribe(change => {
@@ -63,10 +84,18 @@ export class JurassicHeroComponent implements OnInit, OnDestroy {
     // this.links = this.jsonDataService.links;
     this.getNodes();
     this.getLinks();
-
     // console.log(this.nodes)
   }
   ngOnDestroy(){
+
+  }
+  isSelected(id){
+    // console.log()
+    return this.selected === id
+  }
+  expand(item){
+    this.selected = item.id;
+    this.searchService.createQuestionOnType(item);
 
   }
   getLinks() {
